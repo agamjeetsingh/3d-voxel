@@ -24,11 +24,11 @@ private:
 
     glm::vec3 camera_pos = {0.0f, 0.0f, 30.0f};
 
-    glm::vec3 looking_at = {0.0f, 0.0f, 0.0f};
+    glm::vec3 camera_front = {0.0f, 0.0f, -1.0f};
 
     glm::vec3 up_vector = {0.0f, 1.0f, 0.0f};
 
-    glm::mat4 view = glm::lookAt(camera_pos, looking_at, up_vector);
+    glm::mat4 view = glm::lookAt(camera_pos, camera_pos + camera_front, up_vector);
 
     glm::mat4 projection = glm::perspective(
         FOV,          // FOV
