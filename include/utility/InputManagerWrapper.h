@@ -29,7 +29,6 @@ public:
     }
 
     void update(GLFWwindow* window) {
-        // Iterate over keys we care about
         for (auto& [sfml_key, data] : keys) {
             int currentState = glfwGetKey(window, data.glfwKey);
 
