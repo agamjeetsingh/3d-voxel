@@ -16,6 +16,10 @@ public:
 
     void update(float deltaTime);
 
+    float yaw   = -90.0f; // start looking along -Z
+    float pitch = 0.0f;   // start flat (no up/down tilt)
+    glm::vec3 camera_front = {0.0f, 0.0f, -1.0f};
+
 private:
     static constexpr float SPEED = 5.0f;
     static constexpr float FOV = glm::radians(45.0f);
@@ -23,8 +27,6 @@ private:
     glm::mat4 model = {1.0f};
 
     glm::vec3 camera_pos = {0.0f, 0.0f, 30.0f};
-
-    glm::vec3 camera_front = {0.0f, 0.0f, -1.0f};
 
     glm::vec3 up_vector = {0.0f, 1.0f, 0.0f};
 

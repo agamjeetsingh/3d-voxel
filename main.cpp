@@ -45,9 +45,12 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // REQUIRED on Mac
 
+
     GLFWwindow* window = glfwCreateWindow(800, 600, "Triangle Example", nullptr, nullptr);
     if (!window) throw std::runtime_error("Failed to create GLFW window");
     glfwMakeContextCurrent(window);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // TODO - Check for success
 
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
         throw std::runtime_error("Failed to init GLAD");
@@ -126,6 +129,44 @@ int main() {
     glBindVertexArray(0);
 
     Camera camera;
+
+    glfwSetWindowUserPointer(window, &camera);
+
+    glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
+        auto* cam = static_cast<Camera*>(glfwGetWindowUserPointer(win));
+        auto cb = [cam](float xpos, float ypos){
+            static bool firstMouse = true;
+            static float lastX = 400, lastY = 300; // window center
+            static float sensitivity = 0.1f;
+
+            if (firstMouse) { // avoid jump when first captured
+                lastX = xpos;
+                lastY = ypos;
+                firstMouse = false;
+            }
+
+            float xoffset = xpos - lastX;
+            float yoffset = lastY - ypos; // reversed: y-coordinates go from bottom to top
+            lastX = xpos;
+            lastY = ypos;
+
+            xoffset *= sensitivity;
+            yoffset *= sensitivity;
+
+            cam->yaw += xoffset;
+            cam->pitch += yoffset;
+
+            if (cam->pitch > 90.0f) cam->pitch = 90.0f;
+            if (cam->pitch < -90.0f) cam->pitch = -90.0f;
+
+            glm::vec3 direction;
+            direction.x = cos(glm::radians(cam->yaw)) * cos(glm::radians(cam->pitch));
+            direction.y = sin(glm::radians(cam->pitch));
+            direction.z = sin(glm::radians(cam->yaw)) * cos(glm::radians(cam->pitch));
+            cam->camera_front = glm::normalize(direction);
+        };
+        cb(xpos, ypos);
+    });
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();

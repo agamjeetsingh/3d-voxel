@@ -13,7 +13,7 @@ void Camera::update(float deltaTime) {
         camera_pos += camera_front * SPEED * deltaTime;
     }
     if (InputManager::getInstance().isPressed(sf::Keyboard::Key::S)) {
-        camera_pos += camera_front * -SPEED * deltaTime;
+        camera_pos -= camera_front * SPEED * deltaTime;
     }
 
     glm::vec3 right = glm::normalize(glm::cross(camera_front, up_vector));
