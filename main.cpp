@@ -6,35 +6,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "include/Camera.h"
+#include "include/blocks/Chunk.h"
+#include "include/blocks/World.h"
+#include "include/rendering/Camera.h"
+#include "include/rendering/TextureShader.h"
 #include "include/utility/InputManagerWrapper.h"
-
-const char* vertexShaderSource = R"(
-#version 410 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
-
-out vec3 ourColor; // output to fragment shader
-uniform mat4 MVP;  // combined Model-View-Projection matrix
-
-void main()
-{
-    gl_Position = MVP * vec4(aPos, 1.0); // directly output clip-space position
-    ourColor = aColor;             // pass color to fragment shader
-}
-)";
-
-// Fragment shader source (outputs color)
-const char* fragmentShaderSource = R"(
-#version 410 core
-in vec3 ourColor;    // interpolated color from vertex shader
-out vec4 FragColor;  // final color
-
-void main()
-{
-    FragColor = vec4(ourColor, 1); // alpha = 1
-}
-)";
+#include "vendor/stb_image.h"
 
 int main() {
     // -------------------- GLFW + GLAD init --------------------
@@ -57,76 +34,46 @@ int main() {
 
     InputManagerWrapper input_manager_wrapper;
 
-    // -------------------- Shader compilation --------------------
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-    glCompileShader(vertexShader);
-
-    // Check for compile errors
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        std::cerr << "Vertex Shader Compilation Failed:\n" << infoLog << std::endl;
-    }
-
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-    glCompileShader(fragmentShader);
-
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        std::cerr << "Fragment Shader Compilation Failed:\n" << infoLog << std::endl;
-    }
-
-    // Link shaders into shader program
-    unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        std::cerr << "Shader Program Linking Failed:\n" << infoLog << std::endl;
-    }
-
-    // After linking, shaders can be deleted
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    TextureShader texture_shader;
 
     // -------------------- Setup triangle data --------------------
     float vertices[] = {
-        // positions        // colors
-        0.0f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f, // top, red
-       -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, // bottom left, green
-        0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f  // bottom right, blue
-   };
+        // positions          // texture coords (u,v)
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
+    };
 
-    unsigned int VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    World world;
+    world.addBlock({0, 0, 0});
 
-    // Bind VAO first
-    glBindVertexArray(VAO);
+    glActiveTexture(GL_TEXTURE0);
+    // --
 
-    // Bind VBO and upload vertex data
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("../img.png", &width, &height, &nrChannels, 0);
 
-    // Tell OpenGL how to interpret vertex data
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
 
-    // Unbind for safety
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    // texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // load image into texture
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(data);
+
+    // --
+    glUniform1i(glGetUniformLocation(texture_shader.getShaderProgram(), "texture1"), 0);
 
     Camera camera;
 
@@ -168,7 +115,12 @@ int main() {
         cb(xpos, ypos);
     });
 
+    float lastFrame = 0.0f;
+
     while (!glfwWindowShouldClose(window)) {
+        float currentFrame = glfwGetTime(); // seconds since glfwInit
+        float deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
         glfwPollEvents();
 
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -177,29 +129,31 @@ int main() {
 
         input_manager_wrapper.update(window);
 
-        camera.update(0.01);
+        camera.update(deltaTime);
 
         // render
+        glEnable(GL_DEPTH_TEST);
         glClearColor(0.2f, 0.2f, 0.0f, 1.0f); // note: floats 0.0-1.0
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        unsigned int mvpLoc = glGetUniformLocation(shaderProgram, "MVP");
+        unsigned int mvpLoc = glGetUniformLocation(texture_shader.getShaderProgram(), "MVP");
         glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(camera.getMVP()));
 
         // ---- Camera Logic End ----
 
-        // draw triangle
-        glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // draw triangles
+        for (const auto& ptr: world) {
+            glUseProgram(texture_shader.getShaderProgram());
+            glBindVertexArray(ptr->getVAO());
+            std::cout << ptr->getNumVertices() << std::endl;
+            glDrawArrays(GL_TRIANGLES, 0, ptr->getNumVertices());
+        }
 
         glfwSwapBuffers(window);
     }
 
     // cleanup
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
-
+    glDeleteProgram(texture_shader.getShaderProgram());
+    world.cleanup();
     glfwTerminate();
 }
