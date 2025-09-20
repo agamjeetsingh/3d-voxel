@@ -12,7 +12,9 @@ add_executable(3d_voxel main.cpp
         vendor/stb_impl.cpp
         vendor/glad/src/glad.c
         include/utility/InputManagerWrapper.cpp
-        include/utility/InputManagerWrapper.h)
+        include/utility/InputManagerWrapper.h
+        include/Camera.cpp
+        include/Camera.h)
 
 target_include_directories(3d_voxel PRIVATE
         vendor/glad/include
