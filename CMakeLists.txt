@@ -11,10 +11,18 @@ add_executable(3d_voxel main.cpp
         vendor/stb_image.h
         vendor/stb_impl.cpp
         vendor/glad/src/glad.c
-        include/utility/InputManagerWrapper.cpp
+        src/utility/InputManagerWrapper.cpp
         include/utility/InputManagerWrapper.h
-        include/Camera.cpp
-        include/Camera.h)
+        src/rendering/Camera.cpp
+        include/rendering/Camera.h
+        src/blocks/Cube.cpp
+        include/blocks/Cube.h
+        include/rendering/TextureShader.cpp
+        include/rendering/TextureShader.h
+        include/blocks/Chunk.cpp
+        include/blocks/Chunk.h
+        include/blocks/World.cpp
+        include/blocks/World.h)
 
 target_include_directories(3d_voxel PRIVATE
         vendor/glad/include

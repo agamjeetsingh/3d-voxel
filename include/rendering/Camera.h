@@ -16,8 +16,8 @@ public:
 
     void update(float deltaTime);
 
-    float yaw   = -90.0f; // start looking along -Z
-    float pitch = 0.0f;   // start flat (no up/down tilt)
+    float yaw   = -90.0f;
+    float pitch = 0.0f;
     glm::vec3 camera_front = {0.0f, 0.0f, -1.0f};
 
 private:
@@ -32,10 +32,10 @@ private:
 
     glm::mat4 view = glm::lookAt(camera_pos, camera_pos + camera_front, up_vector);
 
-    glm::mat4 projection = glm::perspective(
-        FOV,          // FOV
-        800.0f / 600.0f,              // aspect ratio
-        0.1f, 100.0f                  // near and far clip
+    float aspect_ratio = 800.0f / 600.0f;
+
+    glm::mat4 projection = glm::perspective(FOV, aspect_ratio,
+    0.1f, 100.0f // near and far clip
     );
 };
 

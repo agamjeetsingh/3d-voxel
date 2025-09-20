@@ -2,7 +2,7 @@
 // Created by Agamjeet Singh on 20/09/25.
 //
 
-#include "Camera.h"
+#include "../../include/rendering/Camera.h"
 
 glm::mat4 Camera::getMVP() const {
     return projection * glm::lookAt(camera_pos, camera_pos + camera_front, up_vector) * model;
@@ -16,7 +16,7 @@ void Camera::update(float deltaTime) {
         camera_pos -= camera_front * SPEED * deltaTime;
     }
 
-    glm::vec3 right = glm::normalize(glm::cross(camera_front, up_vector));
+    const glm::vec3 right = glm::normalize(glm::cross(camera_front, up_vector));
 
     if (InputManager::getInstance().isPressed(sf::Keyboard::Key::D)) {
         camera_pos += right * SPEED * deltaTime;
@@ -24,6 +24,5 @@ void Camera::update(float deltaTime) {
     if (InputManager::getInstance().isPressed(sf::Keyboard::Key::A)) {
         camera_pos -= right * SPEED * deltaTime;
     }
-
 }
 
