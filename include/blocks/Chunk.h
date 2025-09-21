@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 
+#include "Block.h"
 #include "Cube.h"
 #include "glad/glad.h"
 
@@ -47,20 +48,20 @@ public:
         glBindVertexArray(0);
     }
 
-    bool addBlock(const glm::vec3& position) {
-        if (vertex_map.contains(position)) return false;
-        const auto block = Cube{position};
+    bool addBlock(const Block& block) {
+        if (vertex_map.contains(block.getPosition())) return false;
         vertices.insert(vertices.end(), block.getFaces().begin(), block.getFaces().end());
         vertex_map.emplace(block.getPosition(), vertices.size() - 1);
+        // TODO - Make O(1)
         updateVBO();
         return true;
     }
 
-    bool removeBlock(const glm::vec3& position) {
-        if (!vertex_map.contains(position)) {
+    bool removeBlock(const Block& block) {
+        if (!vertex_map.contains(block.getPosition())) {
             return false;
         }
-        const size_t starting_index = vertex_map.at(position);
+        const size_t starting_index = vertex_map.at(block.getPosition());
         const auto starting_it = vertices.begin() + static_cast<std::ptrdiff_t>(starting_index);
         const auto ending_it = vertices.begin() + static_cast<std::ptrdiff_t>(starting_index) + 180;
         vertices.erase(starting_it, ending_it);

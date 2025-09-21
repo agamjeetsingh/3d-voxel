@@ -36,43 +36,17 @@ int main() {
 
     TextureShader texture_shader;
 
-    // -------------------- Setup triangle data --------------------
-    float vertices[] = {
-        // positions          // texture coords (u,v)
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
-    };
-
     World world;
-    world.addBlock({0, 0, 0});
+    for (int i = 0; i < 100; i++) {
+        for (int j = 0; j < 100; j++) {
+            for (int k = 0; k < 100; k++) {
+                assert(world.addBlock(Block{{i, k, j}, BlockID::GRASS_BLOCK}));
+            }
+        }
+    }
 
-    glActiveTexture(GL_TEXTURE0);
-    // --
+    TextureAtlas atlas;
 
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("../img.png", &width, &height, &nrChannels, 0);
-
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    // texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    // load image into texture
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(data);
-
-    // --
     glUniform1i(glGetUniformLocation(texture_shader.getShaderProgram(), "texture1"), 0);
 
     Camera camera;

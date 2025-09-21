@@ -23,18 +23,18 @@ public:
         chunks.emplace(chunk->id, std::move(chunk));
     }
 
-    bool addBlock(const glm::vec3& position) {
-        ChunkID id = {position.x / Chunk::CHUNK_SIZE, position.y / Chunk::CHUNK_SIZE};
+    [[nodiscard]] bool addBlock(const Block& block) {
+        const ChunkID id = {block.getPosition().x / Chunk::CHUNK_SIZE, block.getPosition().y / Chunk::CHUNK_SIZE};
         if (!chunks.contains(id)) {
             chunks.emplace(id, std::make_unique<Chunk>(id));
         }
-        return chunks.at(id)->addBlock(position);
+        return chunks.at(id)->addBlock(block);
     }
 
-    bool removeBlock(const glm::vec3& position) const {
-        const ChunkID id = {position.x / Chunk::CHUNK_SIZE, position.y / Chunk::CHUNK_SIZE};
+    [[nodiscard]] bool removeBlock(const Block& block) const {
+        const ChunkID id = {block.getPosition().x / Chunk::CHUNK_SIZE, block.getPosition().y / Chunk::CHUNK_SIZE};
         if (!chunks.contains(id)) return false;
-        return chunks.at(id)->removeBlock(position);
+        return chunks.at(id)->removeBlock(block);
     }
 
     [[nodiscard]] std::optional<Chunk*> getChunk(const glm::vec3& position) const {

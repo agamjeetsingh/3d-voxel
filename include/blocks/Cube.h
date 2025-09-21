@@ -21,75 +21,22 @@ public:
             center.x + radius, center.y + radius, center.z - radius,
             center.x + radius, center.y + radius, center.z + radius
         };
-
-        faces = {
-            // Front face (z+)
-            center.x - radius, center.y - radius, center.z + radius, 0.0f, 0.0f,
-            center.x + radius, center.y - radius, center.z + radius, 1.0f, 0.0f,
-            center.x + radius, center.y + radius, center.z + radius, 1.0f, 1.0f,
-            center.x + radius, center.y + radius, center.z + radius, 1.0f, 1.0f,
-            center.x - radius, center.y + radius, center.z + radius, 0.0f, 1.0f,
-            center.x - radius, center.y - radius, center.z + radius, 0.0f, 0.0f,
-
-            // Back face (z-)
-            center.x + radius, center.y - radius, center.z - radius, 0.0f, 0.0f,
-            center.x - radius, center.y - radius, center.z - radius, 1.0f, 0.0f,
-            center.x - radius, center.y + radius, center.z - radius, 1.0f, 1.0f,
-            center.x - radius, center.y + radius, center.z - radius, 1.0f, 1.0f,
-            center.x + radius, center.y + radius, center.z - radius, 0.0f, 1.0f,
-            center.x + radius, center.y - radius, center.z - radius, 0.0f, 0.0f,
-
-            // Left face (x-)
-            center.x - radius, center.y - radius, center.z - radius, 0.0f, 0.0f,
-            center.x - radius, center.y - radius, center.z + radius, 1.0f, 0.0f,
-            center.x - radius, center.y + radius, center.z + radius, 1.0f, 1.0f,
-            center.x - radius, center.y + radius, center.z + radius, 1.0f, 1.0f,
-            center.x - radius, center.y + radius, center.z - radius, 0.0f, 1.0f,
-            center.x - radius, center.y - radius, center.z - radius, 0.0f, 0.0f,
-
-            // Right face (x+)
-            center.x + radius, center.y - radius, center.z + radius, 0.0f, 0.0f,
-            center.x + radius, center.y - radius, center.z - radius, 1.0f, 0.0f,
-            center.x + radius, center.y + radius, center.z - radius, 1.0f, 1.0f,
-            center.x + radius, center.y + radius, center.z - radius, 1.0f, 1.0f,
-            center.x + radius, center.y + radius, center.z + radius, 0.0f, 1.0f,
-            center.x + radius, center.y - radius, center.z + radius, 0.0f, 0.0f,
-
-            // Bottom face (y-)
-            center.x - radius, center.y - radius, center.z - radius, 0.0f, 1.0f,
-            center.x + radius, center.y - radius, center.z - radius, 1.0f, 1.0f,
-            center.x + radius, center.y - radius, center.z + radius, 1.0f, 0.0f,
-            center.x + radius, center.y - radius, center.z + radius, 1.0f, 0.0f,
-            center.x - radius, center.y - radius, center.z + radius, 0.0f, 0.0f,
-            center.x - radius, center.y - radius, center.z - radius, 0.0f, 1.0f,
-
-            // Top face (y+)
-            center.x - radius, center.y + radius, center.z + radius, 0.0f, 0.0f,
-            center.x + radius, center.y + radius, center.z + radius, 1.0f, 0.0f,
-            center.x + radius, center.y + radius, center.z - radius, 1.0f, 1.0f,
-            center.x + radius, center.y + radius, center.z - radius, 1.0f, 1.0f,
-            center.x - radius, center.y + radius, center.z - radius, 0.0f, 1.0f,
-            center.x - radius, center.y + radius, center.z + radius, 0.0f, 0.0f
-        };
     }
 
     [[nodiscard]] const std::vector<float>& getVertices() const {
         return vertices;
     }
 
-    [[nodiscard]] const std::vector<float>& getFaces() const {
-        return faces;
-    }
-
     [[nodiscard]] glm::vec3 getPosition() const {
         return center;
     }
 
+protected:
+    const glm::vec3 center;
+    const float radius;
+
 private:
-    glm::vec3 center;
-    float radius;
     std::vector<float> vertices;
-    std::vector<float> faces;
 };
 
 

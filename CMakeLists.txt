@@ -22,7 +22,12 @@ add_executable(3d_voxel main.cpp
         include/blocks/Chunk.cpp
         include/blocks/Chunk.h
         include/blocks/World.cpp
-        include/blocks/World.h)
+        include/blocks/World.h
+        include/rendering/TextureAtlas.cpp
+        include/rendering/TextureAtlas.h
+        include/blocks/Block.cpp
+        include/blocks/Block.h
+        include/blocks/BlockID.h)
 
 target_include_directories(3d_voxel PRIVATE
         vendor/glad/include
